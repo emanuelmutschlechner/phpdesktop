@@ -131,5 +131,3 @@ If you would like to support PHP Desktop general development efforts by making a
 If you would like to see some feature implemented you can make a comment about that when making a donation. It will give it a higher priority.
 
 For sponsorship opportunities please contact [Czarek](https://drive.google.com/file/d/17xmoT5Z_zTHkVclqPzrs2aAV64Uiu7fh/view).
-
-Complete github statistics are available in this topic on the Forum: [[ANN] Call for sponsors](https://groups.google.com/d/topic/phpdesktop/1T7jictpJ5M/discussion).
