@@ -126,7 +126,7 @@ To be notified of new releases subscribe to this [Atom feed](https://github.com/
 
 If you would like to support PHP Desktop general development efforts by making a donation please click the Donate button below:
 
-[![Donate](https://raw.githubusercontent.com/cztomczak/phpdesktop/master/var/donate.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=JQSTPDRRM8AQ8)
+[![Donate](https://raw.githubusercontent.com/wiki/cztomczak/cefpython/images/donate.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=JQSTPDRRM8AQ8)
 
 If you would like to see some feature implemented you can make a comment about that when making a donation. It will give it a higher priority.
 
