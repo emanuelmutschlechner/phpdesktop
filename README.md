@@ -101,8 +101,9 @@ Initial Linux release | $1,500 of $1,500 | [Issue #221](https://github.com/cztom
 Please don't ask on the forums or in the issue tracker for how to update PHP Desktop
 for Windows or how to make it work on Mac. Making a release and then supporting that
 release requires a lot of work. If you want to support the project then please post a
-bounty, even $5 is good. There are thousands of PHP Desktop users, if everyone would
-post $5 then it would be more than enough to fund all the features.
+bounty, even $5 is good. Don't wait for others to do it for you. There are thousands
+of PHP Desktop users, if everyone would post $5 then it would be more than enough to
+fund all the features.
 
 Fundings for other features submitted in the issue tracker or the ones presented on the
 [PHP Desktop Pro](https://github.com/cztomczak/phpdesktop/wiki/PHP-Desktop-Pro)
