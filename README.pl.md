@@ -1,4 +1,6 @@
-To wersja README dla projektu PHP Desktop napisana po polsku. Zobacz też
+# PHP Desktop
+
+To plik README dla projektu PHP Desktop napisany po polsku. Zobacz też
 [angielską wersję README](https://github.com/cztomczak/phpdesktop/blob/master/README.md),
 gdzie jest zawarte o wiele więcej informacji i tam są dostępne linki do pobrania.
 
