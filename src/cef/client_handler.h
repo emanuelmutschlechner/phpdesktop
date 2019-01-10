@@ -107,6 +107,7 @@ class ClientHandler : public CefClient,
   virtual bool OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
                               CefRefPtr<CefFrame> frame,
                               CefRefPtr<CefRequest> request,
+                              bool user_gesture,
                               bool is_redirect) OVERRIDE;
 
   // CefKeyboardHandler methods:

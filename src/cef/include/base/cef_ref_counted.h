@@ -51,7 +51,7 @@
 #include "include/base/cef_atomic_ref_count.h"
 #include "include/base/cef_build.h"
 #include "include/base/cef_logging.h"
-#include "include/base/cef_thread_collision_warner.h"
+#include "include/base/cef_macros.h"
 
 namespace base {
 
@@ -60,47 +60,40 @@ namespace cef_subtle {
 class RefCountedBase {
  public:
   bool HasOneRef() const { return ref_count_ == 1; }
+  bool HasAtLeastOneRef() const { return ref_count_ >= 1; }
 
  protected:
   RefCountedBase()
       : ref_count_(0)
-  #if DCHECK_IS_ON()
-      , in_dtor_(false)
-  #endif
-      {
+#if DCHECK_IS_ON()
+        ,
+        in_dtor_(false)
+#endif
+  {
   }
 
   ~RefCountedBase() {
-  #if DCHECK_IS_ON()
+#if DCHECK_IS_ON()
     DCHECK(in_dtor_) << "RefCounted object deleted without calling Release()";
-  #endif
+#endif
   }
 
-
   void AddRef() const {
-    // TODO(maruel): Add back once it doesn't assert 500 times/sec.
-    // Current thread books the critical section "AddRelease"
-    // without release it.
-    // DFAKE_SCOPED_LOCK_THREAD_LOCKED(add_release_);
-  #if DCHECK_IS_ON()
+#if DCHECK_IS_ON()
     DCHECK(!in_dtor_);
-  #endif
+#endif
     ++ref_count_;
   }
 
   // Returns true if the object should self-delete.
   bool Release() const {
-    // TODO(maruel): Add back once it doesn't assert 500 times/sec.
-    // Current thread books the critical section "AddRelease"
-    // without release it.
-    // DFAKE_SCOPED_LOCK_THREAD_LOCKED(add_release_);
-  #if DCHECK_IS_ON()
+#if DCHECK_IS_ON()
     DCHECK(!in_dtor_);
-  #endif
+#endif
     if (--ref_count_ == 0) {
-  #if DCHECK_IS_ON()
+#if DCHECK_IS_ON()
       in_dtor_ = true;
-  #endif
+#endif
       return true;
     }
     return false;
@@ -112,14 +105,13 @@ class RefCountedBase {
   mutable bool in_dtor_;
 #endif
 
-  DFAKE_MUTEX(add_release_);
-
   DISALLOW_COPY_AND_ASSIGN(RefCountedBase);
 };
 
 class RefCountedThreadSafeBase {
  public:
   bool HasOneRef() const;
+  bool HasAtLeastOneRef() const;
 
  protected:
   RefCountedThreadSafeBase();
@@ -160,9 +152,7 @@ class RefCounted : public cef_subtle::RefCountedBase {
  public:
   RefCounted() {}
 
-  void AddRef() const {
-    cef_subtle::RefCountedBase::AddRef();
-  }
+  void AddRef() const { cef_subtle::RefCountedBase::AddRef(); }
 
   void Release() const {
     if (cef_subtle::RefCountedBase::Release()) {
@@ -178,18 +168,19 @@ class RefCounted : public cef_subtle::RefCountedBase {
 };
 
 // Forward declaration.
-template <class T, typename Traits> class RefCountedThreadSafe;
+template <class T, typename Traits>
+class RefCountedThreadSafe;
 
 // Default traits for RefCountedThreadSafe<T>.  Deletes the object when its ref
 // count reaches 0.  Overload to delete it on a different thread etc.
-template<typename T>
+template <typename T>
 struct DefaultRefCountedThreadSafeTraits {
   static void Destruct(const T* x) {
     // Delete through RefCountedThreadSafe to make child classes only need to be
     // friend with RefCountedThreadSafe instead of this struct, which is an
     // implementation detail.
-    RefCountedThreadSafe<T,
-                         DefaultRefCountedThreadSafeTraits>::DeleteInternal(x);
+    RefCountedThreadSafe<T, DefaultRefCountedThreadSafeTraits>::DeleteInternal(
+        x);
   }
 };
 
@@ -205,14 +196,12 @@ struct DefaultRefCountedThreadSafeTraits {
 //    private:
 //     friend class base::RefCountedThreadSafe<MyFoo>;
 //     ~MyFoo();
-template <class T, typename Traits = DefaultRefCountedThreadSafeTraits<T> >
+template <class T, typename Traits = DefaultRefCountedThreadSafeTraits<T>>
 class RefCountedThreadSafe : public cef_subtle::RefCountedThreadSafeBase {
  public:
   RefCountedThreadSafe() {}
 
-  void AddRef() const {
-    cef_subtle::RefCountedThreadSafeBase::AddRef();
-  }
+  void AddRef() const { cef_subtle::RefCountedThreadSafeBase::AddRef(); }
 
   void Release() const {
     if (cef_subtle::RefCountedThreadSafeBase::Release()) {
@@ -234,9 +223,9 @@ class RefCountedThreadSafe : public cef_subtle::RefCountedThreadSafeBase {
 // A thread-safe wrapper for some piece of data so we can place other
 // things in scoped_refptrs<>.
 //
-template<typename T>
+template <typename T>
 class RefCountedData
-    : public base::RefCountedThreadSafe< base::RefCountedData<T> > {
+    : public base::RefCountedThreadSafe<base::RefCountedData<T>> {
  public:
   RefCountedData() : data() {}
   RefCountedData(const T& in_value) : data(in_value) {}
@@ -244,7 +233,7 @@ class RefCountedData
   T data;
 
  private:
-  friend class base::RefCountedThreadSafe<base::RefCountedData<T> >;
+  friend class base::RefCountedThreadSafe<base::RefCountedData<T>>;
   ~RefCountedData() {}
 };
 
@@ -303,8 +292,7 @@ class scoped_refptr {
  public:
   typedef T element_type;
 
-  scoped_refptr() : ptr_(NULL) {
-  }
+  scoped_refptr() : ptr_(NULL) {}
 
   scoped_refptr(T* p) : ptr_(p) {
     if (ptr_)
@@ -364,9 +352,7 @@ class scoped_refptr {
     *pp = p;
   }
 
-  void swap(scoped_refptr<T>& r) {
-    swap(&r.ptr_);
-  }
+  void swap(scoped_refptr<T>& r) { swap(&r.ptr_); }
 
  protected:
   T* ptr_;

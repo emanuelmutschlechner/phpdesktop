@@ -30,7 +30,7 @@
 bool App::OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
                                     CefProcessId source_process,
                                     CefRefPtr<CefProcessMessage> message) {
-    LOG_DEBUG << "renderer[" << browser->GetIdentifier() << "] "
+    PDLOG_DEBUG << "renderer[" << browser->GetIdentifier() << "] "
               << "OnProcessMessageReceived: " << message->GetName().ToString();
     if (message->GetName() == "SetIsFullscreen") {
         CefRefPtr<CefListValue> args = message->GetArgumentList();
@@ -41,7 +41,7 @@ bool App::OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
         }
         return true;
     }
-    LOG_ERROR << "Unhandled message in OnProcessMessageReceived";
+    PDLOG_ERROR << "Unhandled message in OnProcessMessageReceived";
     return false;
 }
 
@@ -57,11 +57,11 @@ void App::OnContextCreated(CefRefPtr<CefBrowser> browser,
                             CefRefPtr<CefFrame> frame,
                             CefRefPtr<CefV8Context> context) {
     // RENDERER PROCESS.
-    LOG_DEBUG << "OnContextCreated()";
+    PDLOG_DEBUG << "OnContextCreated()";
     CefRefPtr<CefV8Value> window = context->GetGlobal();
     CefRefPtr<CefV8Handler> handler = GetJavascriptApi(browser);
     if (!handler.get()) {
-        LOG_ERROR << "GetJavascriptApi() failed in OnContextCreated()";
+        PDLOG_ERROR << "GetJavascriptApi() failed in OnContextCreated()";
         return;
     }
     // Javascipt bindings.
@@ -90,7 +90,7 @@ void App::OnContextCreated(CefRefPtr<CefBrowser> browser,
 ///
 /*--cef()--*/
 void App::OnBrowserCreated(CefRefPtr<CefBrowser> browser) {
-    LOG_DEBUG << "OnBrowserCreated()";
+    PDLOG_DEBUG << "OnBrowserCreated()";
     StoreJavascriptApi(browser, new JavascriptApi(browser));
 }
 
@@ -99,7 +99,7 @@ void App::OnBrowserCreated(CefRefPtr<CefBrowser> browser) {
 ///
 /*--cef()--*/
 void App::OnBrowserDestroyed(CefRefPtr<CefBrowser> browser) {
-    LOG_DEBUG << "OnBrowserDestroyed()";
+    PDLOG_DEBUG << "OnBrowserDestroyed()";
     RemoveJavascriptApi(browser);
 }
 
@@ -133,7 +133,7 @@ void App::OnBeforeCommandLineProcessing(
                 std::string name = switches.u.object.values[i].name;
                 std::string value = static_cast<const char*>(*switches.u.object.values[i].value);
                 if (name.find("-") == 0) {
-                    LOG_WARNING << "Invalid command line switch: " << name;
+                    PDLOG_WARNING << "Invalid command line switch: " << name;
                     continue;
                 }
                 if (command_line->HasSwitch(name)) {
@@ -160,7 +160,7 @@ void App::OnBeforeCommandLineProcessing(
     if (!process_type.empty()) {
         process_name = process_type;
     }
-    LOG_DEBUG << "Command line string for the " << process_name << " process: "
+    PDLOG_DEBUG << "Command line string for the " << process_name << " process: "
               << command_line->GetCommandLineString().ToString();
 }
 
@@ -174,6 +174,6 @@ void App::OnBeforeCommandLineProcessing(
 ///
 void App::OnContextInitialized() {
   REQUIRE_UI_THREAD();
-  LOG_DEBUG << "App::OnContextInitialized()";
+  PDLOG_DEBUG << "App::OnContextInitialized()";
 }
 

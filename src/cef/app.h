@@ -50,7 +50,7 @@ protected:
         if (it != javascriptApiMap_.end()) {
             return it->second;
         }
-        LOG_ERROR << "GetJavascriptApi() failed, api not found";
+        PDLOG_ERROR << "GetJavascriptApi() failed, api not found";
         return NULL;
     }
     void StoreJavascriptApi(CefRefPtr<CefBrowser> browser, 
@@ -60,7 +60,7 @@ protected:
         if (it == javascriptApiMap_.end()) {
             javascriptApiMap_[browser->GetIdentifier()] = javascriptApi;
         } else {
-            LOG_ERROR << "StoreJavascriptApi() failed, api already exists";
+            PDLOG_ERROR << "StoreJavascriptApi() failed, api already exists";
         }
     }
     void RemoveJavascriptApi(CefRefPtr<CefBrowser> browser) {
@@ -69,7 +69,7 @@ protected:
         if (it != javascriptApiMap_.end()) {
             javascriptApiMap_.erase(it);
         } else {
-            LOG_ERROR << "RemoveJavascriptApi() failed, api not found";
+            PDLOG_ERROR << "RemoveJavascriptApi() failed, api not found";
         }
     }
 

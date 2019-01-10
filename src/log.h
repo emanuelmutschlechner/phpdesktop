@@ -138,15 +138,15 @@ class FILELOG_DECLSPEC FILELog : public Log<Output2FILE> {};
 #define FILELOG_MAX_LEVEL logDEBUG4
 #endif
 
-#define LOG(level) \
+#define PDLOG(level) \
     if (level > FILELOG_MAX_LEVEL) ;\
     else if (level > FILELog::ReportingLevel() || !Output2FILE::Stream()) ; \
     else FILELog().Get(level)
 
-#define LOG_ERROR LOG(logERROR)
-#define LOG_WARNING LOG(logWARNING)
-#define LOG_INFO LOG(logINFO)
-#define LOG_DEBUG LOG(logDEBUG)
+#define PDLOG_ERROR PDLOG(logERROR)
+#define PDLOG_WARNING PDLOG(logWARNING)
+#define PDLOG_INFO PDLOG(logINFO)
+#define PDLOG_DEBUG PDLOG(logDEBUG)
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__)
 

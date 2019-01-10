@@ -68,7 +68,7 @@ ClientHandler* ClientHandler::GetInstance() {
 bool ClientHandler::OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
                                     CefProcessId source_process,
                                     CefRefPtr<CefProcessMessage> message) {
-    LOG_DEBUG << "browser[" << browser->GetIdentifier() << "] "
+    PDLOG_DEBUG << "browser[" << browser->GetIdentifier() << "] "
               << "OnProcessMessageReceived: " << message->GetName().ToString();
     if (message->GetName() == "ToggleFullscreen") {
         BrowserWindow* browserWindow = GetBrowserWindow(\
@@ -78,7 +78,7 @@ bool ClientHandler::OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
         }
         return true;
     }
-    LOG_ERROR << "Unhandled message in OnProcessMessageReceived";
+    PDLOG_ERROR << "Unhandled message in OnProcessMessageReceived";
     return false;
 }
 
@@ -123,7 +123,7 @@ void ClientHandler::OnTitleChange(CefRefPtr<CefBrowser> cefBrowser,
 ///
 void ClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> cefBrowser) {
     REQUIRE_UI_THREAD();
-    LOG_DEBUG << "ClientHandler::OnAfterCreated()";
+    PDLOG_DEBUG << "ClientHandler::OnAfterCreated()";
     json_value* appSettings = GetApplicationSettings();
     bool center_relative_to_parent = \
             (*appSettings)["popup_window"]["center_relative_to_parent"];
@@ -133,7 +133,7 @@ void ClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> cefBrowser) {
         // This block of code gets called for Main window & Devtools window.
         ASSERT(!phpBrowser->GetCefBrowser().get());
         if (!phpBrowser->GetCefBrowser().get()) {
-            LOG_DEBUG << "SetCefBrowser() called in "
+            PDLOG_DEBUG << "SetCefBrowser() called in "
                             "ClientHandler::OnAfterCreated()";
             phpBrowser->SetCefBrowser(cefBrowser);
         }
@@ -155,7 +155,7 @@ void ClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> cefBrowser) {
             if (openerPhpBrowser) {
                 openerHandle = openerPhpBrowser->GetWindowHandle();
             }
-            LOG_DEBUG << "Centering popup window relative to its parent";
+            PDLOG_DEBUG << "Centering popup window relative to its parent";
             CenterWindowRelativeToParent(cefHandle, openerHandle);
         }
     }
@@ -172,11 +172,11 @@ void ClientHandler::OnAfterCreated(CefRefPtr<CefBrowser> cefBrowser) {
 ///
 void ClientHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
     REQUIRE_UI_THREAD();
-    LOG_DEBUG << "OnBeforeClose() hwnd=" 
+    PDLOG_DEBUG << "OnBeforeClose() hwnd="
               << (int)browser->GetHost()->GetWindowHandle();
     RemoveBrowserWindow(browser->GetHost()->GetWindowHandle());
     if (g_browserWindows.empty()) {
-        LOG_DEBUG << "Calling CefQuitMessageLoop()";
+        PDLOG_DEBUG << "Calling CefQuitMessageLoop()";
         CefQuitMessageLoop();
     }
 }
@@ -210,7 +210,7 @@ bool ClientHandler::OnBeforePopup(CefRefPtr<CefBrowser> browser,
                             CefRefPtr<CefClient>& client,
                             CefBrowserSettings& settings,
                             bool* no_javascript_access) {
-    LOG_DEBUG << "ClientHandler::OnBeforePopup()";
+    PDLOG_DEBUG << "ClientHandler::OnBeforePopup()";
     // OnBeforePopup does not get called for the DevTools popup window.
     // The devtools window is created using CreatePopupWindow
     // ----
@@ -236,7 +236,7 @@ bool ClientHandler::OnBeforePopup(CefRefPtr<CefBrowser> browser,
         int default_height = static_cast<long>(\
                 (*appSettings)["popup_window"]["default_size"][1]);
         if (default_width && default_height) {
-            LOG_INFO << "Setting default size for a popup window "
+            PDLOG_INFO << "Setting default size for a popup window "
                      << default_width << "/" << default_height;
             windowInfo.width = default_width;
             windowInfo.height = default_height;
@@ -322,13 +322,13 @@ void ClientHandler::OnLoadingStateChange(CefRefPtr<CefBrowser> cefBrowser,
                                 bool isLoading,
                                 bool canGoBack,
                                 bool canGoForward) {
-    LOG_DEBUG << "OnLoadingStateChange: loading=" << isLoading << ", url=" 
+    PDLOG_DEBUG << "OnLoadingStateChange: loading=" << isLoading << ", url="
             << cefBrowser->GetMainFrame()->GetURL().ToString().c_str();
 
     // Is browser loading - if so changing mouse cursor in main.cpp
     BrowserWindow* browserWindow = GetBrowserWindow(cefBrowser->GetHost()->GetWindowHandle());
     if (!browserWindow) {
-        LOG_ERROR << "GetWindowHandle() failed in OnLoadingStateChange";
+        PDLOG_ERROR << "GetWindowHandle() failed in OnLoadingStateChange";
         return;
     }
     g_isBrowserLoading[browserWindow->GetWindowHandle()] = isLoading;
@@ -359,7 +359,7 @@ void ClientHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
                                 const CefString& errorText,
                                 const CefString& failedUrl) {
     REQUIRE_UI_THREAD();
-    LOG_DEBUG << "OnLoadError, errorCode=" << errorCode
+    PDLOG_DEBUG << "OnLoadError, errorCode=" << errorCode
             << ", failedUrl=" << failedUrl.ToString().c_str();
 
     // Don't display an error for downloaded files.
@@ -388,12 +388,12 @@ void ClientHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
         // Reload() is called and correctly resents POST request,
         // but the entry in history before the POST request is lost.
         // Issue 138 explains it in details.
-        LOG_DEBUG << "OnLoadError, calling Reload(), Issue 138";
+        PDLOG_DEBUG << "OnLoadError, calling Reload(), Issue 138";
         browser->Reload();
         return;
     }
 
-    LOG_ERROR << "Failed to load URL: " << failedUrl.ToString();
+    PDLOG_ERROR << "Failed to load URL: " << failedUrl.ToString();
 
     // Display a load error message.
     std::stringstream ss;    
@@ -561,6 +561,7 @@ bool ClientHandler::OnDragEnter(CefRefPtr<CefBrowser> browser,
 bool ClientHandler::OnBeforeBrowse(CefRefPtr<CefBrowser> browser,
                             CefRefPtr<CefFrame> frame,
                             CefRefPtr<CefRequest> request,
+                            bool user_gesture,
                             bool is_redirect) {
     REQUIRE_UI_THREAD();
     // See also OnBeforePopup.
@@ -604,12 +605,12 @@ bool ClientHandler::OnKeyEvent(CefRefPtr<CefBrowser> cefBrowser,
 
     if (reload_page_F5 && event.windows_key_code == VK_F5
             && event.type == KEYEVENT_RAWKEYDOWN) {
-        LOG_DEBUG << "F5 pressed, reloading page";
+        PDLOG_DEBUG << "F5 pressed, reloading page";
         cefBrowser->ReloadIgnoreCache();
         return false;
     } else if (devtools_F12 && event.windows_key_code == VK_F12
             && event.type == KEYEVENT_RAWKEYDOWN) {
-        LOG_DEBUG << "F12 pressed, opening developer tools";
+        PDLOG_DEBUG << "F12 pressed, opening developer tools";
         if (!ShowDevTools(cefBrowser)) {
             return false;
         }
@@ -637,10 +638,10 @@ void ClientHandler::OnBeforeDownload(CefRefPtr<CefBrowser> browser,
     json_value* appSettings = GetApplicationSettings();
     bool enable_downloads = (*appSettings)["chrome"]["enable_downloads"];
     if (enable_downloads) {
-        LOG_INFO << "About to download a file: " << suggested_name.ToString();
+        PDLOG_INFO << "About to download a file: " << suggested_name.ToString();
         callback->Continue(suggested_name, true);
     } else {
-        LOG_INFO << "Tried to download a file, but downloads are disabled";
+        PDLOG_INFO << "Tried to download a file, but downloads are disabled";
     }
 }
 
@@ -657,8 +658,8 @@ void ClientHandler::OnDownloadUpdated(
         CefRefPtr<CefDownloadItem> download_item,
         CefRefPtr<CefDownloadItemCallback> callback) {
     if (download_item->IsComplete()) {
-        LOG_INFO << "Download completed, saved to: " << download_item->GetFullPath().ToString();
+        PDLOG_INFO << "Download completed, saved to: " << download_item->GetFullPath().ToString();
     } else if (download_item->IsCanceled()) {
-        LOG_INFO << "Download was cancelled";
+        PDLOG_INFO << "Download was cancelled";
     }
 }
